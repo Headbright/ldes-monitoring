@@ -48,7 +48,7 @@ def send_curl_start_request(
         {
             "system": start_system,
             "actor": actor_key,
-            "testCase": test_cases,
+            "testSuite": test_cases,
         }
     )
     headers = {"ITB_API_KEY": itb_api_key, "Content-Type": "text/plain"}

@@ -19,7 +19,6 @@ services:
       - 127.0.0.1:9090:9090
     links:
       - alertmanager:alertmanager
-    restart: always
 
   alertmanager:
     image: prom/alertmanager:v0.26.0
@@ -27,7 +26,6 @@ services:
       - 127.0.0.1:9093:9093
     volumes:
       - ./alertmanager/:/etc/alertmanager/
-    restart: always
     command:
       - "--config.file=/etc/alertmanager/config.yml"
       - "--storage.path=/alertmanager"
@@ -44,14 +42,21 @@ services:
       - ./grafana/provisioning/:/etc/grafana/provisioning/
     env_file:
       - ./grafana/config.monitoring
-    restart: always
 
   blackbox-exporter:
     privileged: true
     image: prom/blackbox-exporter:v0.24.0
-    restart: always
     command: "--config.file=/config/blackbox.yml"
     ports:
       - "127.0.0.1:9115:9115"
+    volumes:
+      - "./blackbox-exporter/blackbox.yml:/config/blackbox.yml"
+
+  conformance-exporter:
+    build: ./conformance-exporter
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./conformance-exporter/prd-config
     volumes:
       - "./blackbox-exporter/blackbox.yml:/config/blackbox.yml"

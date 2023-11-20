@@ -1,0 +1,20 @@
+@prefix sh:  <http://www.w3.org/ns/shacl#> .
+@prefix ldes: <https://w3id.org/ldes#> .
+@prefix tree: <https://w3id.org/tree#> .
+
+# SPEC for Tree Spec
+# OPTIONAL test case - 9
+# SPEC Conform:
+# A tree:Node element MAY have one or more tree:relation properties.
+#
+# Verify:
+# Check that if LDES Server supports multiple relations (e.g., by using geospatial or substring fragmentation).
+
+
+tree:SupportMultiRelation
+	a sh:NodeShape ;
+    sh:targetClass tree:relation ;
+    sh:property [
+        sh:path tree:value ;
+        sh:minCount 1 ;
+    ] .

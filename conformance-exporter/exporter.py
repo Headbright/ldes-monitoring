@@ -62,6 +62,7 @@ def get_curl_report_request(sessions, itb_api_key, report_api_endpoint):
     results = {}
     namespace = {"ns2": "http://www.gitb.com/core/v1/"}
     for session in sessions:
+        time.sleep(2)
         url = report_api_endpoint + session
         logging.info("Getting report for: " + url)
         payload = {}
@@ -123,6 +124,7 @@ def conformance_monitor():
                 sessions = send_curl_start_request(
                     start_api_endpoint, start_system, itb_api_key, actor_key, test_cases
                 )
+                time.sleep(5)
                 test_results = get_curl_report_request(
                     sessions, itb_api_key, report_api_endpoint
                 )

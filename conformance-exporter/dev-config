@@ -1,5 +1,5 @@
 export START_API_ENDPOINT="http://localhost:9000/api/rest/tests/start"
-export REPORT_API_ENDPOINT="http://localhost:9000/api/rest/tests/report/"
+export REPORT_API_ENDPOINT="http://localhost:9000/api/rest/tests/status"
 export START_SYSTEM=554D1082X511DX4625X80DFX9E4D6180C529
 export SYSTEM_NAMES=system1
 export ITB_API_KEY=DBF4BCB8XEA08X45A7X85A0X80D110D97651

@@ -48,6 +48,7 @@ def send_curl_start_request(
         {
             "system": start_system,
             "actor": actor_key,
+            "forceSequentialExecution": True,
             "testSuite": test_cases,
         }
     )
@@ -58,39 +59,31 @@ def send_curl_start_request(
 
 
 # function to get report request from ITB for a specific test session
-def get_curl_report_request(sessions, itb_api_key, report_api_endpoint):
+def get_curl_report_request(sessions, itb_api_key, status_api_endpoint):
     results = {}
-    namespace = {"ns2": "http://www.gitb.com/core/v1/"}
     for session in sessions:
-        time.sleep(2)
-        url = report_api_endpoint + session
-        logging.info("Getting report for: " + url)
-        payload = {}
-        headers = {"ITB_API_KEY": itb_api_key}
+        url = status_api_endpoint
+        logging.info("Getting status for: " + url + " Session:" + session)
+        payload = json.dumps({
+            "session": [
+                session
+            ],
+            "withLogs": True
+        })
+        headers = {
+            'ITB_API_KEY': itb_api_key,
+            'Content-Type': 'application/json'
+        }
+        time.sleep(1)
         response = requests.request("GET", url, headers=headers, data=payload)
-
         # When the response is success 200 with a valid test result, return the report to the prometheuse.
-        while (response.status_code != 200) or elementTree.fromstring(
-            response.text
-        ).find("{http://www.gitb.com/tr/v1/}result").text == "UNDEFINED":
+        while (response.status_code != 200) or ' '.join(extract_values_by_key(json.loads(response.text),'result')) == 'UNDEFINED':
+            time.sleep(1)
             response = requests.request("GET", url, headers=headers, data=payload)
-        test_descripton = (
-            elementTree.fromstring(response.text)
-            .find(".//ns2:name", namespaces=namespace)
-            .text
-        )
-        result = (
-            elementTree.fromstring(response.text)
-            .find("{http://www.gitb.com/tr/v1/}result")
-            .text
-        )
-
-        results[test_descripton] = (
-            elementTree.fromstring(response.text)
-            .find("{http://www.gitb.com/tr/v1/}result")
-            .text
-        )
-        logging.info("result for " + test_descripton + "is: " + result)
+        result = ' '.join(extract_values_by_key(json.loads(response.text),'result'))
+        results[session] = result
+        logging.info("result for " + session + " is: " + result)
+    time.sleep(3)
     return results
 
 
@@ -103,7 +96,7 @@ def conformance_monitor():
     system_names = os.getenv("SYSTEM_NAMES").split(",")
     itb_api_key = os.getenv("ITB_API_KEY")
     debug_level = os.getenv("DEBUG_LEVEL")
-    report_api_endpoint = os.getenv("REPORT_API_ENDPOINT")
+    status_api_endpoint = os.getenv("STATUS_API_ENDPOINT")
     actor_key = os.getenv("ACTOR_KEY")
     test_cases = os.getenv("TEST_CASES").split(",")
     logging.basicConfig(level=debug_level)
@@ -126,7 +119,7 @@ def conformance_monitor():
                 )
                 time.sleep(5)
                 test_results = get_curl_report_request(
-                    sessions, itb_api_key, report_api_endpoint
+                    sessions, itb_api_key, status_api_endpoint
                 )
                 result_percentage = calculate_percentage_not_equal(
                     test_results, "SUCCESS"

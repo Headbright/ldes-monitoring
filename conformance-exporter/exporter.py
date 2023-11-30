@@ -54,7 +54,7 @@ def send_curl_start_request(
     )
     headers = {"ITB_API_KEY": itb_api_key, "Content-Type": "text/plain"}
     response = requests.request("POST", url, headers=headers, data=payload)
-    logging.info("Sending start request to: " + url + "\n with payload: " + payload)
+    logging.info("Sending start request to %s: %s", url, payload)
     return extract_values_by_key(response.json(), "session")
 
 
@@ -63,7 +63,7 @@ def get_curl_report_request(sessions, itb_api_key, status_api_endpoint):
     results = {}
     for session in sessions:
         url = status_api_endpoint
-        logging.info("Getting status for: " + url + " Session:" + session)
+        logging.info("Getting status for: %s Session: %s", url, session)
         payload = json.dumps({
             "session": [
                 session
@@ -126,7 +126,7 @@ def conformance_monitor():
                 )
                 reported_results[system_names[index]].set(100 - result_percentage)
             except Exception as e:
-                logging.error(f"error while running test for {start_system}: {e}")
+                logging.error("Error while running test for %s: %s\n%s", start_system, e, traceback.format_exc())
                 reported_results[system_names[index]].set(0)
             index = index + 1
         logging.info(f"sleeping for %d seconds", check_interval)

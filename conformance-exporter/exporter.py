@@ -2,6 +2,7 @@
 
 import json
 import logging
+import traceback
 import os
 import time
 import xml.etree.ElementTree as elementTree
@@ -76,6 +77,7 @@ def get_curl_report_request(sessions, itb_api_key, status_api_endpoint):
         }
         time.sleep(1)
         response = requests.request("GET", url, headers=headers, data=payload)
+        logging.info("Response [%s]: %s", response.status_code, response.text)
         # When the response is success 200 with a valid test result, return the report to the prometheuse.
         while (response.status_code != 200) or ' '.join(extract_values_by_key(json.loads(response.text),'result')) == 'UNDEFINED':
             time.sleep(1)
